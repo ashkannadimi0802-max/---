@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محاسبه گر سرمایه گذاری</title>
+
+<style>
+body{
+    font-family:tahoma;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+    background:#f5f5f5;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+}
+button{
+    padding:12px 20px;
+    cursor:pointer;
+}
+.result{
+    margin-top:20px;
+    line-height:2;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>محاسبه گر سرمایه گذاری پروژه</h2>
+
+<label>مبلغ سرمایه گذاری (تومان)</label>
+<input id="investment" type="number" value="50000000000">
+
+<label>نرخ تنزیل (%)</label>
+<input id="discount" type="number" value="30">
+
+<label>مدت پروژه (سال)</label>
+<input id="years" type="number" value="7">
+
+<button onclick="calculate()">محاسبه</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+function calculate(){
+
+const totalProject = 2500000000000;
+const totalShares = 1000;
+const totalProfit = 17500000000000;
+
+let investment = Number(document.getElementById("investment").value);
+let discount = Number(document.getElementById("discount").value)/100;
+let years = Number(document.getElementById("years").value);
+
+let sharePrice = totalProject/totalShares;
+
+let shares = investment/sharePrice;
+
+let ownership = shares/totalShares;
+
+let profit = ownership*totalProfit;
+
+let annualProfit = profit/years;
+
+let netProfit = profit-investment;
+
+let roi = ((profit-investment)/investment)*100;
+
+let cagr = (Math.pow(profit/investment,1/years)-1)*100;
+
+let pv =
+annualProfit*
+((1-Math.pow(1+discount,-years))/discount);
+
+document.getElementById("result").innerHTML=`
+
+<h3>نتایج</h3>
+
+<p>تعداد سهم: ${shares.toFixed(2)}</p>
+
+<p>درصد مالکیت: ${(ownership*100).toFixed(2)}%</p>
+
+<p>سهم از سود پروژه: ${Math.round(profit).toLocaleString()}</p>
+
+<p>سود سالانه: ${Math.round(annualProfit).toLocaleString()}</p>
+
+<p>سود خالص: ${Math.round(netProfit).toLocaleString()}</p>
+
+<p>بازده کل: ${roi.toFixed(2)}%</p>
+
+<p>بازده مرکب سالانه: ${cagr.toFixed(2)}%</p>
+
+<p>ارزش فعلی سودها: ${Math.round(pv).toLocaleString()}</p>
+
+`;
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
