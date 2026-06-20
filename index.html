@@ -90,10 +90,16 @@
                             <input id="years" type="hidden" value="7">
                         </div>
 
-                        <button onclick="calculate()" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
-                            محاسبه
-                        </button>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="calculate()" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
+                                محاسبه
+                            </button>
+                            <button onclick="showPayment()" 
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
+                                خرید
+                            </button>
+                        </div>
                         
                         <button onclick="generatePDF()" id="pdfBtn" 
                                 class="w-full hidden border-2 border-slate-300 hover:bg-slate-50 py-4 rounded-2xl font-medium text-lg transition">
@@ -109,6 +115,27 @@
         </div>
     </div>
 
+    <!-- Modal پرداخت -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="glass rounded-3xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6 text-center">اطلاعات پرداخت</h3>
+            <div class="space-y-4 text-lg">
+                <div class="bg-white p-5 rounded-2xl">
+                    <p class="text-slate-600 mb-1">شماره شبا:</p>
+                    <p class="font-mono text-blue-700 text-xl font-semibold">IR65 0170 0000 0036 8550 6530 01</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl">
+                    <p class="text-slate-600 mb-1">صاحب حساب:</p>
+                    <p class="font-semibold">آریا راهبرد نیرو</p>
+                </div>
+            </div>
+            <button onclick="closeModal()" 
+                    class="mt-6 w-full bg-slate-700 hover:bg-slate-800 text-white py-4 rounded-2xl font-medium">
+                بستن
+            </button>
+        </div>
+    </div>
+
     <script>
         let profitChart, cumulativeChart;
 
@@ -120,6 +147,7 @@
             const totalProject = 250000000000;
             const totalShares = 1000;
             const totalProfit = 1750000000000;
+            const maxShares = 300; // ۳۰٪ از کل سهام
 
             let investment = Number(document.getElementById("investment").value) || 0;
             let discountRate = Number(document.getElementById("discount").value) / 100 || 0.3;
@@ -130,9 +158,13 @@
 
             let sharePrice = totalProject / totalShares;
             let shares = investment / sharePrice;
+
+            if (shares > maxShares) {
+                return alert("شما مجاز به خرید این تعداد سهم نمی باشید.\nحداکثر ۳۰٪ از سهام قابل خرید است.");
+            }
+
             let ownership = (shares / totalShares) * 100;
 
-            // محاسبه با رشد سالانه
             let annualProfitBase = (ownership / 100 * totalProfit) / years;
             let cashFlows = [];
             let totalShareProfit = 0;
@@ -156,25 +188,19 @@
             let pi = (npv + investment) / investment;
             let payback = investment / cashFlows[0];
 
-            window.lastCalc = {
-                investment, 
-                discountRate: discountRate*100, 
-                growthRate: growthRate*100, 
-                years, 
-                shares: shares.toFixed(2), 
-                ownership: ownership.toFixed(2),
-                totalShareProfit, 
-                annualProfit: annualProfitAvg, 
-                netProfit, 
-                roi: roi.toFixed(1), 
-                cagr: cagr.toFixed(1), 
-                npv, 
-                pi: pi.toFixed(2), 
-                payback: payback.toFixed(1)
-            };
+            window.lastCalc = {investment, discountRate: discountRate*100, growthRate: growthRate*100, years, shares: shares.toFixed(2), 
+                ownership: ownership.toFixed(2), totalShareProfit, annualProfit: annualProfitAvg, netProfit, 
+                roi: roi.toFixed(1), cagr: cagr.toFixed(1), npv, pi: pi.toFixed(2), payback: payback.toFixed(1)};
 
             const resultHTML = `
                 <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
+                
+                <div class="bg-white p-6 rounded-2xl mb-8 space-y-4">
+                    <div class="flex justify-between"><span class="text-slate-600">کل سرمایه‌گذاری مورد نیاز</span><span class="font-bold">${formatNumber(totalProject)} تومان</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل تعداد سهام</span><span class="font-bold">${totalShares} سهم</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰ سهم</span></div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4 mb-8">
                     <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">درصد مالکیت</p><p class="text-4xl font-bold text-blue-600">${ownership.toFixed(2)}%</p></div>
                     <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">تعداد سهم</p><p class="text-4xl font-bold">${shares.toFixed(2)}</p></div>
@@ -207,6 +233,14 @@
             document.getElementById("pdfBtn").classList.remove("hidden");
         }
 
+        function showPayment() {
+            document.getElementById("paymentModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("paymentModal").classList.add("hidden");
+        }
+
         function renderCharts(cashFlows) {
             if (profitChart) profitChart.destroy();
             if (cumulativeChart) cumulativeChart.destroy();
@@ -216,31 +250,17 @@
 
             profitChart = new Chart(document.getElementById('profitChart'), {
                 type: 'bar',
-                data: {
-                    labels: yearsArray,
-                    datasets: [{ label: 'گردش نقدی', data: cashFlows.map(v => Math.round(v)), backgroundColor: '#10b981', borderRadius: 8 }]
-                },
+                data: { labels: yearsArray, datasets: [{ label: 'گردش نقدی', data: cashFlows.map(v => Math.round(v)), backgroundColor: '#10b981', borderRadius: 8 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            const cumulativeData = cashFlows.reduce((acc, val) => {
-                acc.push(acc[acc.length-1] + val);
-                return acc;
-            }, [0]);
+            const cumulativeData = cashFlows.reduce((acc, val) => { acc.push(acc[acc.length-1] + val); return acc; }, [0]);
 
             cumulativeChart = new Chart(document.getElementById('cumulativeChart'), {
                 type: 'line',
                 data: {
                     labels: Array.from({length: years + 1}, (_, i) => i === 0 ? 'شروع' : `سال ${i}`),
-                    datasets: [{
-                        label: 'سود تجمعی',
-                        data: cumulativeData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 4
-                    }]
+                    datasets: [{ label: 'سود تجمعی', data: cumulativeData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true, borderWidth: 4 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -250,13 +270,7 @@
             if (!window.lastCalc) return alert("ابتدا محاسبه کنید");
             const resultDiv = document.getElementById("result");
             try {
-                const canvas = await html2canvas(resultDiv, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: "#ffffff",
-                    logging: false,
-                    allowTaint: true
-                });
+                const canvas = await html2canvas(resultDiv, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
 
@@ -276,7 +290,7 @@
                 alert("✅ گزارش PDF با موفقیت دانلود شد");
             } catch (e) {
                 console.error(e);
-                alert("خطا در تولید PDF - لطفا دوباره امتحان کنید");
+                alert("خطا در تولید PDF");
             }
         }
 
