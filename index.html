@@ -73,6 +73,15 @@
                         </div>
 
                         <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">درصد رشد سالانه (%)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg border border-slate-200 bg-slate-50 flex items-center">
+                                <span id="growth_display" class="font-semibold text-slate-700">۲۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
+                            </div>
+                            <input id="growth" type="hidden" value="20">
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1.5">مدت پروژه (سال)</label>
                             <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg border border-slate-200 bg-slate-50 flex items-center">
                                 <span id="years_display" class="font-semibold text-slate-700">۷</span>
@@ -108,58 +117,69 @@
         }
 
         function calculate() {
-            const totalProject = 250000000000;   // ۲۵۰ میلیارد تومان
+            const totalProject = 250000000000;
             const totalShares = 1000;
-            const totalProfit = 1750000000000;   // سود کل پروژه
+            const totalProfit = 1750000000000;
 
             let investment = Number(document.getElementById("investment").value) || 0;
             let discountRate = Number(document.getElementById("discount").value) / 100 || 0.3;
+            let growthRate = Number(document.getElementById("growth").value) / 100 || 0.2;
             let years = Number(document.getElementById("years").value) || 7;
 
             if (investment <= 0) return alert("مبلغ سرمایه‌گذاری را درست وارد کنید");
 
-            let sharePrice = totalProject / totalShares;           // باید ۲۵۰ میلیون تومان باشد
+            let sharePrice = totalProject / totalShares;
             let shares = investment / sharePrice;
             let ownership = (shares / totalShares) * 100;
-            let totalShareProfit = (ownership / 100) * totalProfit;
-            let annualProfit = totalShareProfit / years;
+
+            // محاسبه سود با رشد سالانه
+            let annualProfitBase = (ownership / 100 * totalProfit) / years; // سود پایه سال اول
+            let cashFlows = [];
+            let totalShareProfit = 0;
+
+            for (let t = 1; t <= years; t++) {
+                const cf = annualProfitBase * Math.pow(1 + growthRate, t - 1);
+                cashFlows.push(cf);
+                totalShareProfit += cf;
+            }
+
+            let annualProfitAvg = totalShareProfit / years;
             let netProfit = totalShareProfit - investment;
             let roi = ((totalShareProfit - investment) / investment) * 100;
             let cagr = (Math.pow(totalShareProfit / investment, 1 / years) - 1) * 100;
             
             let npv = -investment;
             for (let t = 1; t <= years; t++) {
-                npv += annualProfit / Math.pow(1 + discountRate, t);
+                npv += cashFlows[t-1] / Math.pow(1 + discountRate, t);
             }
             
             let pi = (npv + investment) / investment;
-            let payback = investment / annualProfit;
+            let payback = investment / cashFlows[0];
 
-            window.lastCalc = {investment, discountRate: discountRate*100, years, shares: shares.toFixed(2), 
-                ownership: ownership.toFixed(3), totalShareProfit, annualProfit, netProfit, 
+            window.lastCalc = {investment, discountRate: discountRate*100, growthRate: growthRate*100, years, shares: shares.toFixed(2), 
+                ownership: ownership.toFixed(0), totalShareProfit, annualProfit: annualProfitAvg, netProfit, 
                 roi: roi.toFixed(1), cagr: cagr.toFixed(1), npv, pi: pi.toFixed(2), payback: payback.toFixed(1)};
 
             const resultHTML = `
                 <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">قیمت هر سهم</p><p class="text-4xl font-bold">${formatNumber(sharePrice)} تومان</p></div>
+                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">درصد مالکیت</p><p class="text-4xl font-bold text-blue-600">${ownership.toFixed(0)}%</p></div>
                     <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">تعداد سهم</p><p class="text-4xl font-bold">${shares.toFixed(2)}</p></div>
                 </div>
 
                 <div class="space-y-5 text-lg mb-10">
-                    <div class="flex justify-between py-3 border-b"><span>درصد مالکیت</span><span class="font-bold text-blue-600">${ownership.toFixed(3)}%</span></div>
                     <div class="flex justify-between py-3 border-b"><span>سهم سود کل</span><span class="font-bold">${formatNumber(totalShareProfit)} تومان</span></div>
-                    <div class="flex justify-between py-3 border-b"><span>سود سالانه</span><span class="font-bold">${formatNumber(annualProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود متوسط سالانه</span><span class="font-bold">${formatNumber(annualProfitAvg)} تومان</span></div>
                     <div class="flex justify-between py-3 border-b"><span>سود خالص</span><span class="font-bold text-emerald-600">${formatNumber(netProfit)} تومان</span></div>
-                    <div class="flex justify-between py-3 border-b"><span>ROI</span><span class="font-bold">${roi}%</span></div>
-                    <div class="flex justify-between py-3 border-b"><span>CAGR</span><span class="font-bold">${cagr}%</span></div>
-                    <div class="flex justify-between py-3 border-b"><span>NPV</span><span class="font-bold text-violet-600">${formatNumber(npv)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>بازده سرمایه (ROI)</span><span class="font-bold">${roi}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>نرخ رشد ترکیبی (CAGR)</span><span class="font-bold">${cagr}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>ارزش خالص فعلی (NPV)</span><span class="font-bold text-violet-600">${formatNumber(npv)} تومان</span></div>
                     <div class="flex justify-between py-3"><span>دوره بازگشت سرمایه</span><span class="font-bold">${payback} سال</span></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه</h3>
+                        <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه (با رشد)</h3>
                         <div class="chart-wrapper"><canvas id="profitChart"></canvas></div>
                     </div>
                     <div>
@@ -170,28 +190,44 @@
             `;
 
             document.getElementById("result").innerHTML = resultHTML;
-            setTimeout(() => renderCharts(annualProfit, years), 150);
+            setTimeout(() => renderCharts(cashFlows), 150);
             document.getElementById("pdfBtn").classList.remove("hidden");
         }
 
-        function renderCharts(annualProfit, years) {
+        function renderCharts(cashFlows) {
             if (profitChart) profitChart.destroy();
             if (cumulativeChart) cumulativeChart.destroy();
 
+            const years = cashFlows.length;
             const yearsArray = Array.from({length: years}, (_, i) => `سال ${i+1}`);
 
             profitChart = new Chart(document.getElementById('profitChart'), {
                 type: 'bar',
-                data: { labels: yearsArray, datasets: [{ label: 'سود سالانه', data: Array(years).fill(Math.round(annualProfit)), backgroundColor: '#10b981', borderRadius: 8 }] },
+                data: {
+                    labels: yearsArray,
+                    datasets: [{ label: 'گردش نقدی', data: cashFlows.map(v => Math.round(v)), backgroundColor: '#10b981', borderRadius: 8 }]
+                },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            const cumulativeData = Array.from({length: years + 1}, (_, i) => Math.round(annualProfit * i));
+            const cumulativeData = cashFlows.reduce((acc, val) => {
+                acc.push(acc[acc.length-1] + val);
+                return acc;
+            }, [0]);
+
             cumulativeChart = new Chart(document.getElementById('cumulativeChart'), {
                 type: 'line',
                 data: {
                     labels: Array.from({length: years + 1}, (_, i) => i === 0 ? 'شروع' : `سال ${i}`),
-                    datasets: [{ label: 'سود تجمعی', data: cumulativeData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true, borderWidth: 4 }]
+                    datasets: [{
+                        label: 'سود تجمعی',
+                        data: cumulativeData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 4
+                    }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -201,7 +237,13 @@
             if (!window.lastCalc) return alert("ابتدا محاسبه کنید");
             const resultDiv = document.getElementById("result");
             try {
-                const canvas = await html2canvas(resultDiv, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
+                const canvas = await html2canvas(resultDiv, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    allowTaint: true
+                });
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
 
@@ -221,7 +263,7 @@
                 alert("✅ گزارش PDF با موفقیت دانلود شد");
             } catch (e) {
                 console.error(e);
-                alert("خطا در تولید PDF");
+                alert("خطا در تولید PDF - لطفا دوباره امتحان کنید");
             }
         }
 
