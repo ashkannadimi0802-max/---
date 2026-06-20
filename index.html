@@ -147,7 +147,7 @@
             const totalProject = 250000000000;
             const totalShares = 1000;
             const totalProfit = 1750000000000;
-            const maxShares = 300; // ۳۰٪ از کل سهام
+            const maxShares = 300;   // حداکثر 300 سهم
 
             let investment = Number(document.getElementById("investment").value) || 0;
             let discountRate = Number(document.getElementById("discount").value) / 100 || 0.3;
@@ -160,7 +160,7 @@
             let shares = investment / sharePrice;
 
             if (shares > maxShares) {
-                return alert("شما مجاز به خرید این تعداد سهم نمی باشید.\nحداکثر ۳۰٪ از سهام قابل خرید است.");
+                return alert("شما مجاز به خرید بیش از 300 سهم نمی باشید.");
             }
 
             let ownership = (shares / totalShares) * 100;
@@ -188,9 +188,12 @@
             let pi = (npv + investment) / investment;
             let payback = investment / cashFlows[0];
 
-            window.lastCalc = {investment, discountRate: discountRate*100, growthRate: growthRate*100, years, shares: shares.toFixed(2), 
-                ownership: ownership.toFixed(2), totalShareProfit, annualProfit: annualProfitAvg, netProfit, 
-                roi: roi.toFixed(1), cagr: cagr.toFixed(1), npv, pi: pi.toFixed(2), payback: payback.toFixed(1)};
+            window.lastCalc = {
+                investment, discountRate: discountRate*100, growthRate: growthRate*100, years, 
+                shares: shares.toFixed(2), ownership: ownership.toFixed(2),
+                totalShareProfit, annualProfit: annualProfitAvg, netProfit, 
+                roi: roi.toFixed(1), cagr: cagr.toFixed(1), npv, pi: pi.toFixed(2), payback: payback.toFixed(1)
+            };
 
             const resultHTML = `
                 <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
@@ -198,7 +201,7 @@
                 <div class="bg-white p-6 rounded-2xl mb-8 space-y-4">
                     <div class="flex justify-between"><span class="text-slate-600">کل سرمایه‌گذاری مورد نیاز</span><span class="font-bold">${formatNumber(totalProject)} تومان</span></div>
                     <div class="flex justify-between"><span class="text-slate-600">کل تعداد سهام</span><span class="font-bold">${totalShares} سهم</span></div>
-                    <div class="flex justify-between"><span class="text-slate-600">کل سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰ سهم</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰۰ سهم</span></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
