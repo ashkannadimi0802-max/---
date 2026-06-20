@@ -16,7 +16,7 @@
         body { font-family: 'Vazirmatn', Tahoma, sans-serif; }
         .glass { background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); }
 
-        /* رفع مشکل oklch */
+        /* رفع رنگ‌های Tailwind */
         .bg-blue-600 { background-color: #2563eb !important; }
         .text-blue-600 { color: #2563eb !important; }
         .text-emerald-600 { color: #10b981 !important; }
@@ -29,10 +29,17 @@
             user-select: none;
         }
 
-        /* جلوگیری از کش آمدن نمودارها */
-        .chart-container {
-            height: 260px;
+        /* رفع مشکل کش آمدن نمودارها */
+        .chart-wrapper {
+            height: 280px;
             position: relative;
+            width: 100%;
+        }
+
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: 280px !important;
+            max-height: 280px !important;
         }
     </style>
 </head>
@@ -91,7 +98,7 @@
             </div>
 
             <div class="lg:col-span-3">
-                <div id="result" class="glass rounded-3xl shadow-2xl p-8 min-h-[580px]"></div>
+                <div id="result" class="glass rounded-3xl shadow-2xl p-8 min-h-[620px]"></div>
             </div>
         </div>
     </div>
@@ -124,9 +131,7 @@
             let cagr = (Math.pow(totalShareProfit / investment, 1 / years) - 1) * 100;
             
             let npv = -investment;
-            for (let t = 1; t <= years; t++) {
-                npv += annualProfit / Math.pow(1 + discountRate, t);
-            }
+            for (let t = 1; t <= years; t++) npv += annualProfit / Math.pow(1 + discountRate, t);
             
             let pi = (npv + investment) / investment;
             let payback = investment / annualProfit;
@@ -155,13 +160,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه</h3>
-                        <div class="chart-container">
+                        <div class="chart-wrapper">
                             <canvas id="profitChart"></canvas>
                         </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold mb-3 text-center">سود تجمعی</h3>
-                        <div class="chart-container">
+                        <div class="chart-wrapper">
                             <canvas id="cumulativeChart"></canvas>
                         </div>
                     </div>
@@ -170,9 +175,7 @@
 
             document.getElementById("result").innerHTML = resultHTML;
 
-            setTimeout(() => {
-                renderCharts(annualProfit, years);
-            }, 150);
+            setTimeout(() => renderCharts(annualProfit, years), 200);
 
             document.getElementById("pdfBtn").classList.remove("hidden");
         }
@@ -252,7 +255,7 @@
 
                 const pageWidth = 190;
                 const imgHeight = (canvas.height * pageWidth) / canvas.width;
-                doc.addImage(canvas.toDataURL("image/png", 1.0), 'PNG', 10, 50, pageWidth, imgHeight);
+                doc.addImage(canvas.toDataURL("image/png", 1.0), 'PNG', 10, 50, pageWidth, Math.min(imgHeight, 280));
 
                 doc.save(`گزارش_آریا_راهبرد_${new Date().toISOString().slice(0,10)}.pdf`);
                 alert("✅ گزارش PDF با موفقیت دانلود شد");
