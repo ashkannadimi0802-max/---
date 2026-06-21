@@ -38,7 +38,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <!-- پنل سمت چپ -->
             <div class="lg:col-span-2">
                 <div class="glass rounded-3xl shadow-2xl p-8 sticky top-6">
                     <h2 class="text-2xl font-semibold mb-6">محاسبه سود سرمایه‌گذاری</h2>
@@ -77,25 +76,15 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
-                            <button onclick="calculate()" 
-                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
-                                محاسبه
-                            </button>
-                            <button onclick="showRegisterModal()" 
-                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
-                                ثبت‌نام
-                            </button>
+                            <button onclick="calculate()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg">محاسبه</button>
+                            <button onclick="showRegisterModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg">ثبت‌نام</button>
                         </div>
 
-                        <button onclick="showAdminPanel()" 
-                                class="w-full border border-slate-300 py-3 rounded-2xl text-sm">
-                            🔑 پنل ادمین
-                        </button>
+                        <button onclick="showAdminPanel()" class="w-full border border-slate-300 py-3 rounded-2xl text-sm">🔑 پنل ادمین</button>
                     </div>
                 </div>
             </div>
 
-            <!-- نتایج -->
             <div class="lg:col-span-3">
                 <div id="result" class="glass rounded-3xl shadow-2xl p-8 min-h-[620px]"></div>
             </div>
@@ -106,14 +95,12 @@
     <div id="adminModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="glass rounded-3xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto">
             <h3 class="text-2xl font-bold mb-6">پنل مدیریت - ویرایش سود سالانه</h3>
-            
             <input type="password" id="adminPass" placeholder="رمز عبور ادمین" class="w-full rounded-2xl px-6 py-4 border mb-6">
             <button onclick="loginAdmin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl mb-8">ورود به پنل</button>
 
             <div id="adminContent" class="hidden">
                 <div class="grid grid-cols-7 gap-3 mb-8" id="annualProfitInputs"></div>
-                <button onclick="updateAnnualProfits()" 
-                        class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-medium">
+                <button onclick="updateAnnualProfits()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-medium">
                     بروزرسانی سود سال‌ها و نمودارها
                 </button>
             </div>
@@ -153,19 +140,35 @@
 
             const html = `
                 <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
+                
+                <div class="bg-white p-6 rounded-2xl mb-8 space-y-4">
+                    <div class="flex justify-between"><span class="text-slate-600">کل سرمایه‌گذاری مورد نیاز پروژه</span><span class="font-bold">${formatNumber(totalProject)} تومان</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل تعداد سهام پروژه</span><span class="font-bold">${totalShares} سهم</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">حداکثر سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰۰ سهم (۳۰٪)</span></div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4 mb-8">
                     <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">درصد مالکیت</p><p class="text-4xl font-bold text-blue-600">${ownership.toFixed(2)}%</p></div>
                     <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">تعداد سهم</p><p class="text-4xl font-bold">${shares.toFixed(2)}</p></div>
                 </div>
+
                 <div class="space-y-5 text-lg mb-10">
-                    <div class="flex justify-between py-3 border-b"><span>سود کل سهم</span><span class="font-bold">${formatNumber(totalShareProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سهم سود کل</span><span class="font-bold">${formatNumber(totalShareProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود متوسط سالانه</span><span class="font-bold">${formatNumber(totalShareProfit/7)} تومان</span></div>
                     <div class="flex justify-between py-3 border-b"><span>سود خالص</span><span class="font-bold text-emerald-600">${formatNumber(netProfit)} تومان</span></div>
-                    <div class="flex justify-between py-3 border-b"><span>ROI</span><span class="font-bold">${roi.toFixed(1)}%</span></div>
-                    <div class="flex justify-between py-3"><span>CAGR</span><span class="font-bold">${cagr.toFixed(1)}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>بازده سرمایه (ROI)</span><span class="font-bold">${roi.toFixed(1)}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>نرخ رشد ترکیبی (CAGR)</span><span class="font-bold">${cagr.toFixed(1)}%</span></div>
                 </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div><h3 class="text-center mb-3">گردش نقدی سالانه</h3><div class="chart-wrapper"><canvas id="profitChart"></canvas></div></div>
-                    <div><h3 class="text-center mb-3">سود تجمعی</h3><div class="chart-wrapper"><canvas id="cumulativeChart"></canvas></div></div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه</h3>
+                        <div class="chart-wrapper"><canvas id="profitChart"></canvas></div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">سود تجمعی</h3>
+                        <div class="chart-wrapper"><canvas id="cumulativeChart"></canvas></div>
+                    </div>
                 </div>
             `;
 
@@ -193,7 +196,7 @@
             });
         }
 
-        // ==================== ادمین ====================
+        // پنل ادمین (ویرایش سود سالانه)
         function showAdminPanel() {
             document.getElementById("adminModal").classList.remove("hidden");
         }
