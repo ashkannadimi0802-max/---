@@ -38,7 +38,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <!-- پنل ورودی -->
+            <!-- پنل سمت چپ -->
             <div class="lg:col-span-2">
                 <div class="glass rounded-3xl shadow-2xl p-8 sticky top-6">
                     <h2 class="text-2xl font-semibold mb-6">محاسبه سود سرمایه‌گذاری</h2>
@@ -52,7 +52,8 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1.5">نرخ تنزیل (%)</label>
                             <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
-                                <span class="font-semibold text-slate-700">۳۰</span> <span class="mr-1 text-slate-500">٪</span>
+                                <span class="font-semibold text-slate-700">۳۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
                             </div>
                             <input id="discount" type="hidden" value="30">
                         </div>
@@ -60,7 +61,8 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1.5">درصد رشد سالانه (%)</label>
                             <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
-                                <span class="font-semibold text-slate-700">۲۰</span> <span class="mr-1 text-slate-500">٪</span>
+                                <span class="font-semibold text-slate-700">۲۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
                             </div>
                             <input id="growth" type="hidden" value="20">
                         </div>
@@ -68,17 +70,27 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1.5">مدت پروژه (سال)</label>
                             <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
-                                <span class="font-semibold text-slate-700">۷</span> <span class="mr-1 text-slate-500">سال</span>
+                                <span class="font-semibold text-slate-700">۷</span>
+                                <span class="text-slate-500 mr-1">سال</span>
                             </div>
                             <input id="years" type="hidden" value="7">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
-                            <button onclick="calculate()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg">محاسبه</button>
-                            <button onclick="showRegisterModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg">ثبت‌نام</button>
+                            <button onclick="calculate()" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
+                                محاسبه
+                            </button>
+                            <button onclick="showRegisterModal()" 
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg transition">
+                                ثبت‌نام
+                            </button>
                         </div>
 
-                        <button onclick="showAdminPanel()" class="w-full border border-slate-300 py-3 rounded-2xl text-sm">🔑 پنل ادمین</button>
+                        <button onclick="showAdminPanel()" 
+                                class="w-full border border-slate-300 py-3 rounded-2xl text-sm">
+                            🔑 پنل ادمین
+                        </button>
                     </div>
                 </div>
             </div>
@@ -110,7 +122,7 @@
 
     <script>
         let profitChart, cumulativeChart;
-        let annualProfits = [25000000000, 30000000000, 36000000000, 43200000000, 51840000000, 62208000000, 74649600000]; // سود پایه سالانه
+        let annualProfits = [25000000000, 30000000000, 36000000000, 43200000000, 51840000000, 62208000000, 74649600000];
 
         function formatNumber(num) {
             return Math.round(num).toLocaleString('fa-IR');
@@ -218,7 +230,7 @@
                 if (val > 0) annualProfits[idx] = val;
             });
             alert("✅ سود سال‌های پروژه بروزرسانی شد.");
-            calculate(); // بروزرسانی نتایج و نمودارها
+            calculate();
         }
 
         window.onload = calculate;
