@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Modal ادمین (بدون تغییر) -->
+    <!-- Modal ادمین -->
     <div id="adminModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="glass rounded-3xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto">
             <h3 class="text-2xl font-bold mb-6">پنل مدیریت - ویرایش سود سالانه</h3>
@@ -138,17 +138,95 @@
 
     <script>
         let profitChart, cumulativeChart;
-       
         let annualProfits = [
             120000000000, 144000000000, 172800000000,
-            207360000000, 248832000000, 298598400000,
-            358318080000
+            207360000000, 248832000000, 298598400000, 358318080000
         ];
+
+        let currentPhone = "";
+        let correctOTP = "";
 
         function formatNumber(num) {
             return Math.round(num).toLocaleString('fa-IR');
         }
 
+        // ==================== ارسال OTP با sms.ir ====================
+        async function sendOTP() {
+            const phoneInput = document.getElementById("phoneNumber").value.trim();
+            const name = document.getElementById("fullName").value.trim();
+
+            if (!name || !phoneInput || phoneInput.length < 10) {
+                return alert("لطفاً نام و شماره موبایل معتبر وارد کنید.");
+            }
+
+            let phone = phoneInput.replace(/^0/, '');
+
+            currentPhone = phone;
+
+            const API_KEY = "aBVsYRi1tLINdTvSKpKXtX9s56648qhLyjABENVeRxdGk6od";
+            const TEMPLATE_ID = "YOUR_TEMPLATE_ID_HERE";   // ← اینجا Template ID را وارد کنید
+
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            try {
+                const response = await fetch('https://api.sms.ir/v1/send/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': API_KEY
+                    },
+                    body: JSON.stringify({
+                        mobile: phone,
+                        templateId: TEMPLATE_ID,
+                        parameters: [{ name: "CODE", value: otpCode }]
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === "SUCCESS") {
+                    correctOTP = otpCode;
+                    document.getElementById("shownPhone").textContent = "0" + phone;
+                    document.getElementById("registerStep1").classList.add("hidden");
+                    document.getElementById("registerStep2").classList.remove("hidden");
+                    alert(`✅ کد تأیید به شماره ${"0" + phone} ارسال شد.`);
+                } else {
+                    alert("خطا در ارسال پیامک:\n" + (result.message || result.error || "Template ID را چک کنید"));
+                    console.error(result);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("خطا در اتصال به سرور. لطفاً اینترنت خود را چک کنید.");
+            }
+        }
+
+        function verifyOTP() {
+            const entered = document.getElementById("otpCode").value.trim();
+            if (entered === correctOTP) {
+                document.getElementById("registerStep2").classList.add("hidden");
+                document.getElementById("registerSuccess").classList.remove("hidden");
+            } else {
+                alert("کد وارد شده اشتباه است!");
+            }
+        }
+
+        function backToStep1() {
+            document.getElementById("registerStep2").classList.add("hidden");
+            document.getElementById("registerStep1").classList.remove("hidden");
+        }
+
+        function closeRegisterModal() {
+            document.getElementById("registerModal").classList.add("hidden");
+        }
+
+        function showRegisterModal() {
+            document.getElementById("registerModal").classList.remove("hidden");
+            document.getElementById("registerStep1").classList.remove("hidden");
+            document.getElementById("registerStep2").classList.add("hidden");
+            document.getElementById("registerSuccess").classList.add("hidden");
+        }
+
+        // ==================== محاسبات و نمودارها (همان قبلی) ====================
         function calculate() {
             const totalProject = 250000000000;
             const totalShares = 1000;
@@ -261,56 +339,6 @@
             });
         }
 
-        // ====================== توابع ثبت‌نام ======================
-        let currentPhone = "";
-        let correctOTP = "";
-
-        function showRegisterModal() {
-            document.getElementById("registerModal").classList.remove("hidden");
-            document.getElementById("registerStep1").classList.remove("hidden");
-            document.getElementById("registerStep2").classList.add("hidden");
-            document.getElementById("registerSuccess").classList.add("hidden");
-        }
-
-        function sendOTP() {
-            const phone = document.getElementById("phoneNumber").value.trim();
-            const name = document.getElementById("fullName").value.trim();
-
-            if (!name || !phone) return alert("لطفاً نام و شماره موبایل را وارد کنید.");
-            if (phone.length < 10) return alert("شماره موبایل معتبر نیست.");
-
-            currentPhone = phone;
-            correctOTP = Math.floor(100000 + Math.random() * 900000).toString();
-
-            console.log(`کد تأیید برای ${phone}: ${correctOTP}`);
-
-            document.getElementById("shownPhone").textContent = phone;
-            document.getElementById("registerStep1").classList.add("hidden");
-            document.getElementById("registerStep2").classList.remove("hidden");
-
-            alert(`✅ کد تأیید به شماره ${phone} ارسال شد.\n\nکد تست: ${correctOTP}`);
-        }
-
-        function verifyOTP() {
-            const entered = document.getElementById("otpCode").value.trim();
-            if (entered === correctOTP) {
-                document.getElementById("registerStep2").classList.add("hidden");
-                document.getElementById("registerSuccess").classList.remove("hidden");
-            } else {
-                alert("کد وارد شده اشتباه است!");
-            }
-        }
-
-        function backToStep1() {
-            document.getElementById("registerStep2").classList.add("hidden");
-            document.getElementById("registerStep1").classList.remove("hidden");
-        }
-
-        function closeRegisterModal() {
-            document.getElementById("registerModal").classList.add("hidden");
-        }
-
-        // ====================== پنل ادمین ======================
         function showAdminPanel() {
             document.getElementById("adminModal").classList.remove("hidden");
         }
