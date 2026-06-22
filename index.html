@@ -28,7 +28,6 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen py-8">
-    <!-- ... همان هدر و sidebar قبلی ... -->
     <div class="max-w-5xl mx-auto px-4">
         <div class="flex items-center justify-between mb-10">
             <div class="flex items-center gap-4">
@@ -43,12 +42,38 @@
             <div class="lg:col-span-2">
                 <div class="glass rounded-3xl shadow-2xl p-8 sticky top-6">
                     <h2 class="text-2xl font-semibold mb-6">محاسبه سود سرمایه‌گذاری</h2>
-                    <!-- ... inputs قبلی ... -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="calculate()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg">محاسبه</button>
-                        <button onclick="showRegisterModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg">ثبت‌نام</button>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">مبلغ سرمایه‌گذاری (تومان)</label>
+                            <input id="investment" type="number" value="50000000000" class="w-full rounded-2xl px-6 py-4 border border-slate-200 focus:border-blue-600 outline-none text-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">نرخ تنزیل (%)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۳۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">درصد رشد سالانه (%)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۲۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">مدت پروژه (سال)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۷</span>
+                                <span class="text-slate-500 mr-1">سال</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="calculate()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg">محاسبه</button>
+                            <button onclick="showRegisterModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg">ثبت‌نام</button>
+                        </div>
+                        <button onclick="showAdminPanel()" class="w-full border border-slate-300 py-3 rounded-2xl text-sm">🔑 پنل ادمین</button>
                     </div>
-                    <button onclick="showAdminPanel()" class="w-full border border-slate-300 py-3 rounded-2xl text-sm mt-4">🔑 پنل ادمین</button>
                 </div>
             </div>
             <div class="lg:col-span-3">
@@ -57,7 +82,7 @@
         </div>
     </div>
 
-    <!-- Modal ثبت‌نام با احراز هویت SMS -->
+    <!-- Modal ثبت‌نام با پیامک -->
     <div id="registerModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="glass rounded-3xl p-8 w-full max-w-md mx-4">
             <div id="registerStep1">
@@ -84,24 +109,159 @@
                 <button onclick="verifyOTP()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg mt-6">
                     تأیید کد
                 </button>
-                <button onclick="backToStep1()" class="w-full text-slate-500 mt-4">ویرایش شماره</button>
+                <button onclick="backToStep1()" class="w-full text-slate-500 mt-4 text-sm">ویرایش شماره</button>
             </div>
 
             <div id="registerSuccess" class="hidden text-center py-8">
                 <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-4xl mb-6">✅</div>
-                <h3 class="text-2xl font-bold text-emerald-600 mb-2">ثبت‌نام با موفقیت انجام شد!</h3>
-                <p class="text-slate-600">اطلاعات شما ثبت و تأیید گردید.</p>
+                <h3 class="text-2xl font-bold text-emerald-600 mb-2">ثبت‌نام موفق</h3>
+                <p class="text-slate-600">اطلاعات شما با موفقیت ثبت و تأیید شد.</p>
                 <button onclick="closeRegisterModal()" class="mt-8 bg-slate-800 text-white px-10 py-4 rounded-2xl">بستن</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal ادمین (همان قبلی) -->
-    <div id="adminModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50"> ... </div>
+    <!-- Modal ادمین (بدون تغییر) -->
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="glass rounded-3xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-auto">
+            <h3 class="text-2xl font-bold mb-6">پنل مدیریت - ویرایش سود سالانه</h3>
+            <input type="password" id="adminPass" placeholder="رمز عبور ادمین" class="w-full rounded-2xl px-6 py-4 border mb-6">
+            <button onclick="loginAdmin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl mb-8">ورود به پنل</button>
+            <div id="adminContent" class="hidden">
+                <div class="grid grid-cols-7 gap-3 mb-8" id="annualProfitInputs"></div>
+                <button onclick="updateAnnualProfits()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-medium">
+                    بروزرسانی سود سال‌ها و نمودارها
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ... تمام کدهای قبلی calculate، chart، admin و ... همان‌طور بماند ...
+        let profitChart, cumulativeChart;
+       
+        let annualProfits = [
+            120000000000, 144000000000, 172800000000,
+            207360000000, 248832000000, 298598400000,
+            358318080000
+        ];
 
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('fa-IR');
+        }
+
+        function calculate() {
+            const totalProject = 250000000000;
+            const totalShares = 1000;
+            const maxShares = 300;
+
+            let investment = Number(document.getElementById("investment").value) || 0;
+            if (investment <= 0) return alert("مبلغ سرمایه‌گذاری را وارد کنید");
+
+            let sharePrice = totalProject / totalShares;
+            let shares = investment / sharePrice;
+
+            if (shares > maxShares) return alert("شما مجاز به خرید بیش از ۳۰۰ سهم نمی باشید.");
+
+            let ownership = (shares / totalShares) * 100;
+            let cashFlows = annualProfits.map(p => p * (ownership / 100));
+
+            let totalShareProfit = cashFlows.reduce((a, b) => a + b, 0);
+            let netProfit = totalShareProfit - investment;
+            let roi = ((totalShareProfit - investment) / investment) * 100;
+            let cagr = (Math.pow(totalShareProfit / investment, 1 / 7) - 1) * 100;
+
+            let tableRows = '';
+            let cumulative = 0;
+            cashFlows.forEach((cash, index) => {
+                cumulative += cash;
+                tableRows += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="font-medium">سال ${index + 1}</td>
+                        <td>${formatNumber(annualProfits[index])}</td>
+                        <td class="text-emerald-600 font-medium">${formatNumber(cash)}</td>
+                        <td class="font-semibold">${formatNumber(cumulative)}</td>
+                    </tr>
+                `;
+            });
+
+            const html = `
+                <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
+                <div class="bg-white p-6 rounded-2xl mb-8 space-y-4">
+                    <div class="flex justify-between"><span class="text-slate-600">کل سرمایه‌گذاری مورد نیاز پروژه</span><span class="font-bold">${formatNumber(totalProject)} تومان</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل تعداد سهام پروژه</span><span class="font-bold">${totalShares} سهم</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">حداکثر سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰۰ سهم (۳۰٪)</span></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">درصد مالکیت</p><p class="text-4xl font-bold text-blue-600">${ownership.toFixed(2)}%</p></div>
+                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">تعداد سهم</p><p class="text-4xl font-bold">${shares.toFixed(2)}</p></div>
+                </div>
+
+                <div class="space-y-5 text-lg mb-10">
+                    <div class="flex justify-between py-3 border-b"><span>سهم سود کل (۷ سال)</span><span class="font-bold">${formatNumber(totalShareProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود متوسط سالانه</span><span class="font-bold">${formatNumber(totalShareProfit/7)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود خالص</span><span class="font-bold text-emerald-600">${formatNumber(netProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>بازده سرمایه (ROI)</span><span class="font-bold">${roi.toFixed(1)}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>نرخ رشد ترکیبی (CAGR)</span><span class="font-bold">${cagr.toFixed(1)}%</span></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه</h3>
+                        <div class="chart-wrapper"><canvas id="profitChart"></canvas></div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">سود تجمعی</h3>
+                        <div class="chart-wrapper"><canvas id="cumulativeChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl overflow-hidden">
+                    <h3 class="text-lg font-semibold p-6 pb-4 border-b">جدول تفصیلی سود و گردش نقدی</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="font-medium text-slate-600">سال</th>
+                                    <th class="font-medium text-slate-600">سود کل پروژه</th>
+                                    <th class="font-medium text-emerald-600">سهم شما</th>
+                                    <th class="font-medium text-slate-700">سود تجمعی شما</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("result").innerHTML = html;
+            setTimeout(() => renderCharts(cashFlows), 100);
+        }
+
+        function renderCharts(cashFlows) {
+            if (profitChart) profitChart.destroy();
+            if (cumulativeChart) cumulativeChart.destroy();
+
+            const yearsArray = Array.from({length: 7}, (_, i) => `سال ${i+1}`);
+
+            profitChart = new Chart(document.getElementById('profitChart'), {
+                type: 'bar',
+                data: { labels: yearsArray, datasets: [{ label: 'گردش نقدی', data: cashFlows.map(v => Math.round(v)), backgroundColor: '#10b981' }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const cumData = cashFlows.reduce((acc, val) => { acc.push(acc[acc.length-1] + val); return acc; }, [0]);
+
+            cumulativeChart = new Chart(document.getElementById('cumulativeChart'), {
+                type: 'line',
+                data: { labels: Array.from({length: 8}, (_, i) => i===0 ? 'شروع' : `سال ${i}`), datasets: [{ label: 'سود تجمعی', data: cumData, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // ====================== توابع ثبت‌نام ======================
         let currentPhone = "";
         let correctOTP = "";
 
@@ -116,42 +276,24 @@
             const phone = document.getElementById("phoneNumber").value.trim();
             const name = document.getElementById("fullName").value.trim();
 
-            if (!name || !phone) {
-                alert("لطفاً نام و شماره موبایل را وارد کنید.");
-                return;
-            }
-            if (phone.length < 10) {
-                alert("شماره موبایل وارد شده معتبر نیست.");
-                return;
-            }
+            if (!name || !phone) return alert("لطفاً نام و شماره موبایل را وارد کنید.");
+            if (phone.length < 10) return alert("شماره موبایل معتبر نیست.");
 
             currentPhone = phone;
-            // شبیه‌سازی کد تأیید (در محیط واقعی اینجا به API پیامک متصل می‌شود)
             correctOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            console.log(`📨 کد تأیید برای ${phone}: ${correctOTP}`); // برای تست
+
+            console.log(`کد تأیید برای ${phone}: ${correctOTP}`);
 
             document.getElementById("shownPhone").textContent = phone;
             document.getElementById("registerStep1").classList.add("hidden");
             document.getElementById("registerStep2").classList.remove("hidden");
-            
-            alert(`✅ کد تأیید به شماره ${phone} ارسال شد.\n\nکد تست: ${correctOTP} (در نسخه واقعی پیامک واقعی ارسال می‌شود)`);
+
+            alert(`✅ کد تأیید به شماره ${phone} ارسال شد.\n\nکد تست: ${correctOTP}`);
         }
 
         function verifyOTP() {
-            const enteredOTP = document.getElementById("otpCode").value.trim();
-            
-            if (enteredOTP === correctOTP) {
-                // ذخیره اطلاعات
-                const name = document.getElementById("fullName").value;
-                const phone = currentPhone;
-                
-                localStorage.setItem("registeredUser", JSON.stringify({
-                    name: name,
-                    phone: phone,
-                    date: new Date().toISOString()
-                }));
-
+            const entered = document.getElementById("otpCode").value.trim();
+            if (entered === correctOTP) {
                 document.getElementById("registerStep2").classList.add("hidden");
                 document.getElementById("registerSuccess").classList.remove("hidden");
             } else {
@@ -168,8 +310,46 @@
             document.getElementById("registerModal").classList.add("hidden");
         }
 
-        // بقیه توابع (calculate, admin و ...) بدون تغییر بمانند
-        // ... (کدهای قبلی را اینجا کپی کنید)
+        // ====================== پنل ادمین ======================
+        function showAdminPanel() {
+            document.getElementById("adminModal").classList.remove("hidden");
+        }
+
+        function loginAdmin() {
+            if (document.getElementById("adminPass").value === "admin123") {
+                document.getElementById("adminContent").classList.remove("hidden");
+                renderAnnualProfitInputs();
+            } else {
+                alert("رمز عبور اشتباه است!");
+            }
+        }
+
+        function renderAnnualProfitInputs() {
+            const container = document.getElementById("annualProfitInputs");
+            container.innerHTML = "";
+            annualProfits.forEach((profit, index) => {
+                const div = document.createElement("div");
+                div.className = "text-center";
+                div.innerHTML = `
+                    <label class="block text-xs text-slate-500 mb-1">سال ${index+1}</label>
+                    <input type="number" value="${profit}" data-index="${index}" class="w-full rounded-xl px-4 py-3 border text-center text-sm">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateAnnualProfits() {
+            const inputs = document.querySelectorAll("#annualProfitInputs input");
+            inputs.forEach(input => {
+                const idx = parseInt(input.dataset.index);
+                const val = Number(input.value);
+                if (val > 0) annualProfits[idx] = val;
+            });
+            alert("✅ سود سال‌های پروژه بروزرسانی شد.");
+            calculate();
+        }
+
+        window.onload = calculate;
     </script>
 </body>
 </html>
