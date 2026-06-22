@@ -4,22 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسبه‌گر حرفه‌ای | آریا راهبرد نیرو</title>
+  
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
         body { font-family: 'Vazirmatn', Tahoma, sans-serif; }
         .glass { background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); }
-        .readonly-input { background-color: #f8fafc; border: 2px solid #e2e8f0; pointer-events: none; user-select: none; }
+        .readonly-input {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            pointer-events: none;
+            user-select: none;
+        }
         .chart-wrapper { height: 280px; position: relative; width: 100%; }
         .chart-wrapper canvas { width: 100% !important; height: 280px !important; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen py-8">
-    <!-- محتوای اصلی صفحه -->
     <div class="max-w-5xl mx-auto px-4">
         <div class="flex items-center justify-between mb-10">
             <div class="flex items-center gap-4">
@@ -39,7 +45,27 @@
                             <label class="block text-sm font-medium text-slate-600 mb-1.5">مبلغ سرمایه‌گذاری (تومان)</label>
                             <input id="investment" type="number" value="50000000000" class="w-full rounded-2xl px-6 py-4 border border-slate-200 focus:border-blue-600 outline-none text-lg">
                         </div>
-                        <!-- بقیه فیلدها -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">نرخ تنزیل (%)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۳۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">درصد رشد سالانه (%)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۲۰</span>
+                                <span class="text-slate-500 mr-1">٪</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1.5">مدت پروژه (سال)</label>
+                            <div class="readonly-input w-full rounded-2xl px-6 py-4 text-lg flex items-center">
+                                <span class="font-semibold text-slate-700">۷</span>
+                                <span class="text-slate-500 mr-1">سال</span>
+                            </div>
+                        </div>
                         <div class="grid grid-cols-2 gap-4">
                             <button onclick="calculate()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-5 rounded-2xl text-lg">محاسبه</button>
                             <button onclick="showRegisterModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-5 rounded-2xl text-lg">ثبت‌نام</button>
@@ -62,42 +88,140 @@
             <button onclick="loginAdmin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl mb-8">ورود به پنل</button>
             <div id="adminContent" class="hidden">
                 <div class="grid grid-cols-7 gap-3 mb-8" id="annualProfitInputs"></div>
-                <button onclick="updateAnnualProfits()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-medium">بروزرسانی سود سال‌ها</button>
+                <button onclick="updateAnnualProfits()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-medium">
+                    بروزرسانی سود سال‌ها و نمودارها
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         let profitChart, cumulativeChart;
-        let annualProfits = [50000000000, 60000000000, 72000000000, 86400000000, 103680000000, 124416000000, 149299200000];
+        
+        // سود سالانه کل پروژه (بر اساس جدول شما تنظیم شده)
+        let annualProfits = [
+            50000000000, 60000000000, 72000000000, 
+            86400000000, 103680000000, 124416000000, 
+            149299200000
+        ];
 
         function formatNumber(num) {
             return Math.round(num).toLocaleString('fa-IR');
         }
 
-        function calculate() { /* همان تابع قبلی */ 
+        function calculate() {
             const totalProject = 250000000000;
             const totalShares = 1000;
             const maxShares = 300;
+
             let investment = Number(document.getElementById("investment").value) || 0;
             if (investment <= 0) return alert("مبلغ سرمایه‌گذاری را وارد کنید");
+
             let sharePrice = totalProject / totalShares;
             let shares = investment / sharePrice;
+
             if (shares > maxShares) return alert("شما مجاز به خرید بیش از ۳۰۰ سهم نمی باشید.");
+
             let ownership = (shares / totalShares) * 100;
             let cashFlows = annualProfits.map(p => p * (ownership / 100));
+
             let totalShareProfit = cashFlows.reduce((a, b) => a + b, 0);
             let netProfit = totalShareProfit - investment;
             let roi = ((totalShareProfit - investment) / investment) * 100;
             let cagr = (Math.pow(totalShareProfit / investment, 1 / 7) - 1) * 100;
 
-            const html = ` ... `; // (برای کوتاه شدن پیام، بقیه html رو از کد قبلی کپی کن)
+            const html = `
+                <h2 class="text-3xl font-bold mb-8">نتایج محاسبه</h2>
+                <div class="bg-white p-6 rounded-2xl mb-8 space-y-4">
+                    <div class="flex justify-between"><span class="text-slate-600">کل سرمایه‌گذاری مورد نیاز پروژه</span><span class="font-bold">${formatNumber(totalProject)} تومان</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">کل تعداد سهام پروژه</span><span class="font-bold">${totalShares} سهم</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">حداکثر سهام قابل خرید</span><span class="font-bold text-emerald-600">۳۰۰ سهم (۳۰٪)</span></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">درصد مالکیت</p><p class="text-4xl font-bold text-blue-600">${ownership.toFixed(2)}%</p></div>
+                    <div class="bg-white p-6 rounded-2xl"><p class="text-slate-500">تعداد سهم</p><p class="text-4xl font-bold">${shares.toFixed(2)}</p></div>
+                </div>
+
+                <div class="space-y-5 text-lg mb-10">
+                    <div class="flex justify-between py-3 border-b"><span>سهم سود کل (۷ سال)</span><span class="font-bold">${formatNumber(totalShareProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود متوسط سالانه</span><span class="font-bold">${formatNumber(totalShareProfit/7)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>سود خالص</span><span class="font-bold text-emerald-600">${formatNumber(netProfit)} تومان</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>بازده سرمایه (ROI)</span><span class="font-bold">${roi.toFixed(1)}%</span></div>
+                    <div class="flex justify-between py-3 border-b"><span>نرخ رشد ترکیبی (CAGR)</span><span class="font-bold">${cagr.toFixed(1)}%</span></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">گردش نقدی سالانه</h3>
+                        <div class="chart-wrapper"><canvas id="profitChart"></canvas></div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 text-center">سود تجمعی</h3>
+                        <div class="chart-wrapper"><canvas id="cumulativeChart"></canvas></div>
+                    </div>
+                </div>
+            `;
+
             document.getElementById("result").innerHTML = html;
             setTimeout(() => renderCharts(cashFlows), 100);
         }
 
-        // بقیه توابع renderCharts, showAdminPanel و ... را از پیام قبلی کپی کنید
-        // (برای جلوگیری از طولانی شدن پیام، اینجا خلاصه کردم)
+        function renderCharts(cashFlows) {
+            if (profitChart) profitChart.destroy();
+            if (cumulativeChart) cumulativeChart.destroy();
+
+            const yearsArray = Array.from({length: 7}, (_, i) => `سال ${i+1}`);
+
+            profitChart = new Chart(document.getElementById('profitChart'), {
+                type: 'bar',
+                data: { labels: yearsArray, datasets: [{ label: 'گردش نقدی', data: cashFlows.map(v => Math.round(v)), backgroundColor: '#10b981' }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const cumData = cashFlows.reduce((acc, val) => { acc.push(acc[acc.length-1] + val); return acc; }, [0]);
+            cumulativeChart = new Chart(document.getElementById('cumulativeChart'), {
+                type: 'line',
+                data: { labels: Array.from({length: 8}, (_, i) => i===0 ? 'شروع' : `سال ${i}`), datasets: [{ label: 'سود تجمعی', data: cumData, borderColor: '#3b82f6', fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function showAdminPanel() {
+            document.getElementById("adminModal").classList.remove("hidden");
+        }
+        function loginAdmin() {
+            if (document.getElementById("adminPass").value === "admin123") {
+                document.getElementById("adminContent").classList.remove("hidden");
+                renderAnnualProfitInputs();
+            } else {
+                alert("رمز عبور اشتباه است!");
+            }
+        }
+        function renderAnnualProfitInputs() {
+            const container = document.getElementById("annualProfitInputs");
+            container.innerHTML = "";
+            annualProfits.forEach((profit, index) => {
+                const div = document.createElement("div");
+                div.className = "text-center";
+                div.innerHTML = `
+                    <label class="block text-xs text-slate-500 mb-1">سال ${index+1}</label>
+                    <input type="number" value="${profit}" data-index="${index}" class="w-full rounded-xl px-4 py-3 border text-center text-sm">
+                `;
+                container.appendChild(div);
+            });
+        }
+        function updateAnnualProfits() {
+            const inputs = document.querySelectorAll("#annualProfitInputs input");
+            inputs.forEach(input => {
+                const idx = parseInt(input.dataset.index);
+                const val = Number(input.value);
+                if (val > 0) annualProfits[idx] = val;
+            });
+            alert("✅ سود سال‌های پروژه بروزرسانی شد.");
+            calculate();
+        }
+
         window.onload = calculate;
     </script>
 </body>
